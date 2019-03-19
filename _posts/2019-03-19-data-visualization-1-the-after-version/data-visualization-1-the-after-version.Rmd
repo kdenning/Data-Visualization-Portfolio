@@ -1,7 +1,7 @@
 ---
-title: "Data Visualization 1: The Before version"
+title: "Data Visualization 1: The After Version"
 description: |
-  This is the original version of Data visualization 1, before undergoing peer review and edits. There are two plots, one that shows frequency and the other that shows proportion.
+  The final version of Data Visualization 1, which combined the two separate plots into one and made a few other minor changes.
 author:
   - name: Kathryn Denning
     url: https://psychology.uoregon.edu/profile/kdenning/
@@ -13,6 +13,18 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+#install.packages("rio")
+#install.packages("here")
+#install.packages("tidyverse")
+#install.packages("magrittr")
+#install.packages("RColorBrewer")
+#install.packages("ggridges")
+#install.packages("XML")
+#install.packages("janitor")
+#install.packages("colorspace")
+#install.packages("ggrepel")
+#install.packages("cowplot")
+#install.packages("shadowtext")
 library(rio)
 library(here)
 library(tidyverse)
@@ -22,9 +34,14 @@ library(ggridges)
 library(XML)
 library(janitor)
 library(colorspace)
-library(ggridges)
 #library(ggsci)
 library(ggrepel)
+library(cowplot)
+library(shadowtext)
+
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
 
 #read in data on all UFO citings in Jan 2019
 x <- readHTMLTable("http://www.nuforc.org/webreports/ndxe201901.html")
@@ -102,22 +119,14 @@ state_filled <- state_base +
       geom_polygon(color = "white", fill = NA) +
       scale_fill_continuous_sequential("viridis", name = "Frequency") +
   ditch_the_axes
-```
 
-The plot below uses data from the National UFO Reporting Center (http://www.nuforc.org/index.html) to show the frequency of reported UFO sightings for January 2019 across the continental United States.
-
-```{r}
 #adding title
-state_filled + 
+statefilled1_withlabs <- state_filled + 
   labs(title = "Frequency of UFO citings per state in January 2019",
        caption = "Data from National UFO Reporting Center and US Census Bureau")
-```
 
-However, you can see in this plot that many of the states with the higher frequency of UFO reports are also states with larger populations, so this plot isn't really telling us *which* state sees more UFO citings, but which state has more people to report citings. Thus, I decided to look into which state has the highest proportion of citings for their population.
-
-```{r plot 1 - chloropleth with proportion of observations per population}
 #importing dataset with population stats from the United States Census Bureau
-pop <- read_csv("nst-est2018-alldata .csv")
+pop <- read_csv("nst-est2018-alldata  .csv")
 
 #cleaning the formatting of the names
 pop %<>% 
@@ -158,16 +167,32 @@ state_base2 <- ggplot(data = pop_state_freq_merged1 , mapping = aes(x = long, y 
 
 #filling in the states with the proportion data
 state_filled2 <- state_base + 
-  geom_polygon(data = pop_state_freq_merged1 , aes(fill = freq_bypop_perstate), color = "white") +
+  geom_polygon(data = pop_state_freq_merged1 , aes(fill = freq_bypop_perstate), 
+               color = "white") +
       geom_polygon(color = "white", fill = NA) +
-      scale_fill_continuous_sequential("viridis", name = "Proprtion") +
-  ditch_the_axes
-
+      scale_fill_continuous_sequential("viridis", name = "Proportion", 
+                                       labels=c("Minimum (0)",
+                                                "Maximum (.000004)"),
+                                       limits=c(0,.000004), 
+                                       breaks=c(0,.000004)) + ditch_the_axes
 #adding labels
-state_filled2 + 
+state_filled2_withlabs <- state_filled2 + 
   labs(title = "Proportion of UFO citings per state",
        subtitle = "Proportion determined by number of citings divided by population size",
-       caption = "Data from National UFO Reporting Center and US Census Bureau")
+       caption = "Data from National UFO Reporting Center and US Census Bureau. 
+       No information was provided for Vermont.")
+
+#combining plots 1A and 1B into one plot side by side
+combined1 <- plot_grid(state_filled, state_filled2, labels = c("Frequency of UFO citings per state in January 2019", "Proportion of citings per state by population in January 2019"), align = "hv", nrow = 2, hjust = -.05, vjust = 1)
+
+#Adding a caption
+final1 <- ggdraw(add_sub(combined1, "Data from National UFO Reporting Center and US Census Bureau", x = .5, y = 1, hjust = .3, vjust = 0.5, fontfamily = "",
+  fontface = "plain", colour = "black", size = 10, angle = 0,
+  lineheight = 0.9))
 ```
 
-This plot shows that the proportion and frequency of UFO citings per state differ. Interestingly, the region that shows the highest proportion of citings now appears to be the Pacific Northwest (with Idaho and Montana included!). However, don't overlook the fact that Rhode Island (so small its almost not visible on the map) has a high proportion as well.
+```{r}
+final1
+```
+
+Using the same data as the first version of this plot, the "After" version of the plot combines both plots into one using library(cowplot) and adjusts the proportion scale to not be using scientific notation.
