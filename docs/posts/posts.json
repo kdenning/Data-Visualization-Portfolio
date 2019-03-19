@@ -43,5 +43,35 @@
     "categories": [],
     "preview": "posts/2019-03-19-data-visualization-1-the-after-version/data-visualization-1-the-after-version_files/figure-html5/unnamed-chunk-1-1.png",
     "last_modified": "2019-03-19T14:18:59-07:00"
+  },
+  {
+    "path": "posts/2019-03-19-data-visualization-2-the-before-version/",
+    "title": "Data Visualization 2: The Before Version",
+    "description": "This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located.",
+    "author": [
+      {
+        "name": "Kathryn Denning",
+        "url": "https://psychology.uoregon.edu/profile/kdenning/"
+      }
+    ],
+    "date": "2019-03-19",
+    "categories": [],
+    "preview": "posts/2019-03-19-data-visualization-2-the-before-version/data-visualization-2-the-before-version_files/figure-html5/plot2-1.png",
+    "last_modified": "2019-03-19T14:35:04-07:00"
+  },
+  {
+    "path": "posts/2019-03-19-data-visualization-2-the-after-version/",
+    "title": "Data Visualization 2: The After Version",
+    "description": "The updated version of this plot shows that the highest proportion of UFO citings generally occur in Western states, but that Rhode Island takes the number 1 spot!",
+    "author": [
+      {
+        "name": "Kathryn Denning",
+        "url": "https://psychology.uoregon.edu/profile/kdenning/"
+      }
+    ],
+    "date": "2019-03-19",
+    "categories": [],
+    "preview": "posts/2019-03-19-data-visualization-2-the-after-version/data-visualization-2-the-after-version_files/figure-html5/unnamed-chunk-1-1.png",
+    "last_modified": "2019-03-19T15:12:21-07:00"
   }
 ]

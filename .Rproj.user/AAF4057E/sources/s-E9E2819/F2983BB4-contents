@@ -1,0 +1,194 @@
+---
+title: "Data Visualization 2: The Before Version"
+description: |
+  This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located.
+author:
+  - name: Kathryn Denning
+    url: https://psychology.uoregon.edu/profile/kdenning/
+date: 03-19-2019
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = FALSE)
+library(rio)
+library(here)
+library(tidyverse)
+library(magrittr)
+library(RColorBrewer)
+library(ggridges)
+library(XML)
+library(janitor)
+library(colorspace)
+library(ggridges)
+#library(ggsci)
+library(ggrepel)
+
+#read in data on all UFO citings in Jan 2019
+x <- readHTMLTable("http://www.nuforc.org/webreports/ndxe201901.html")
+#Turn it into a dataset
+ufo_jan19 <- plyr::ldply(x, data.frame)
+#power was out, so couldn't google how to add a key when there isn't one - so just wrote it into a csv and added in excel
+write.csv(ufo_jan19,'ufo_jan19.csv')
+ufo_jan19 <- read_csv("ufo_jan19.csv")
+
+#cleaned dataset to be lowercase and to only include US states
+clean <- ufo_jan19 %>%
+  clean_names() %>% 
+  filter(state != "AB") %>% 
+  filter(state != "ON") %>% 
+  filter(!is.na(state))
+
+#Read in data of all ufo citings in Oregon ever
+y <- readHTMLTable("http://www.nuforc.org/webreports/ndxlOR.html")
+#Turn it into a dataset
+ufo_oregon <- plyr::ldply(y, data.frame)
+
+state <- ggplot2::map_data("state")
+
+#need to have a variable with the full state names in lowercase to merge datasets
+state_fullname <- datasets::state.name #calling dataset with state names
+state_fullname <- sapply(state.name, tolower) #making them lowercase
+
+state_abbrv <- datasets::state.abb #calling dataset with abbreviations to use as key when merging dataset to get full names in main dataset so that it can be combined with dataset used to make map of US
+
+state_key <- data.frame(
+  state_full = state_fullname,
+  state_abrv = state_abbrv
+) #making dataset with the two character strings state_fullname and state_abbrv
+
+state_key %<>% clean_names
+
+clean %<>% 
+  mutate(state_abrv = state)
+
+join1 <- left_join(clean, state_key) #joining dataset with fullnames to cleaned ufo dataset
+
+#getting frequency of UFO citings per state
+plot1 <- join1 %>% 
+  group_by(state_full) %>% 
+  count()
+
+#cleaning dataset that has state information for plot of US so that it can be merged
+state_fixed <- state %>% 
+  mutate(state_full = region) %>% 
+  select(-region) %>% 
+  clean_names
+
+#merging data with frequency of UFO with plot dataset
+plot1_freq_merged <- left_join(state_fixed, plot1)
+
+#code that removes axes from plot of US
+ditch_the_axes <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank()
+  )
+
+#code that makes US base
+state_base <- ggplot(data = plot1_freq_merged, 
+                     mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(color = "white", fill = "white")
+
+#code that fills the states with frequency data
+state_filled <- state_base + 
+  geom_polygon(data = plot1_freq_merged, aes(fill = n), color = "white") +
+      geom_polygon(color = "white", fill = NA) +
+      scale_fill_continuous_sequential("viridis", name = "Frequency") +
+  ditch_the_axes
+```
+
+```{r plot 1 - code from plot1 for data cleaning that is relevant}
+#importing dataset with population stats from the United States Census Bureau
+pop <- read_csv("nst-est2018-alldata.csv")
+
+#cleaning the formatting of the names
+pop %<>% 
+  clean_names() 
+
+#changing the state name variable so that it will be the same when merging later and making data lowercase
+pop$state_full <- tolower(pop$name)
+
+#cleaning dataset to exclude areas that weren't in my UFO dataset
+pop %<>%
+  filter(state_full != "puerto rico") %>% 
+  filter(state_full != "district of columbia") %>% 
+  filter(state_full != "united states")
+
+#making dataset that is only the 50 states, ignoring the four regions for the moment
+pop_state <- pop %>%
+  filter(state_full != "northeast region") %>% 
+  filter(state_full != "midwest region") %>% 
+  filter(state_full != "south region") %>% 
+  filter(state_full != "west region")
+
+#merging population dataset with the data on the frequency of UFO observations
+pop_state_freq_merged <- left_join(pop_state, plot1_freq_merged)
+
+#converting the frequency of observations to be a proportion
+freq_bypop_state <- pop_state_freq_merged %>% 
+  group_by(state_full) %>% 
+  mutate(freq_bypop = ((n/popestimate2018))) %>% 
+  summarize(freq_bypop_perstate = mean(freq_bypop))
+
+#adding the proportion back into the main dataset
+pop_state_freq_merged1 <- left_join(plot1_freq_merged, freq_bypop_state)
+
+#made the population dataset to include a variable of region
+pop_region <- pop %>%
+  select(c(state_full, popestimate2018, region)) %>%  
+  filter(state_full != "northeast region") %>% 
+  filter(state_full != "midwest region") %>% 
+  filter(state_full != "south region") %>% 
+  filter(state_full != "west region") %>% 
+  mutate(region = factor(region, labels = c("Northeast",
+                                              "Midwest",
+                                              "South",
+                                              "West"))) 
+
+
+#merged population region dataset with overall dataset with dataset with state names and regions to create key that can merge with the UFO obersevation dataset
+region_withfullstate <- left_join(state_key, pop_region)
+
+#merged region data with UFO observation data
+pop_freq_state_region <- left_join(region_withfullstate, clean)
+
+#Make a frequency of observations from this dataset
+freq_bystate <- pop_freq_state_region %>% 
+  group_by(state_abrv) %>% 
+  count()
+
+#merged the frequency variable back into the overall dataset
+plot_freq_bystate_andregion <- left_join(pop_freq_state_region, freq_bystate)
+
+#got rid of variables I didn't want and repeat rows 
+plot_freq_bystate_andregion2 <- plot_freq_bystate_andregion %>% 
+  select(state_abrv, popestimate2018, region, n) %>% 
+  unique()
+```
+
+The plot below used the same data as Data Visualization 1, but instead incorporated that data into a barplot and added region as a variable. The barplot is organized with states in descending order according to population size, in order for outlier states (one whos frequency of observations stands out in comparison to other states of similiar population sizes) to become more visible. The states are filled depending on what region in the country they are from (e.g., Northeast, South, Midwest, or West).
+
+```{r plot2}
+#bar plot
+ggplot(plot_freq_bystate_andregion2, aes(reorder(state_abrv, popestimate2018), n)) +
+  geom_col(aes(fill = region)) +
+  ylim(0,25) +
+  coord_flip() +
+  theme_minimal() +
+  scale_fill_viridis_d(name = "Region") +
+  labs(title = "Frequency of UFO observations by state and region",
+       subtitle = "States in descending order by population size",
+       y = "Frequency of UFO observations",
+       x = "State",
+       caption = "Data from National UFO Reporting Center and US Census Bureau")
+```
+
+As can be seen in the plot above, there are a few issues that need to be addressed. First, it is very obvious that axis with the state names needs changed so the state names do not overlap. Secondly, the plot is somewhat difficult to read in regards to what states/regions have the most observations.
+

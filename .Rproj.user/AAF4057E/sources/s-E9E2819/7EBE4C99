@@ -13,8 +13,8 @@
     "project_path" : null,
     "properties" : {
         "chunk_output_type" : "console",
-        "cursorPosition" : "10,0",
-        "scrollLine" : "2"
+        "cursorPosition" : "280,3",
+        "scrollLine" : "274"
     },
     "read_only" : false,
     "read_only_alternatives" : [
