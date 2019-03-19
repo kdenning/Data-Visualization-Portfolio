@@ -1,13 +1,12 @@
 ---
 title: "Welcome to Data Visualization Portfolio for Class"
 description: |
-  Welcome to our new blog, Data Visualization Portfolio for Class. We hope you enjoy 
-  reading what we have to say!
+  Welcome to my class blog, Data Visualization Portfolio for Class. I hope you enjoy!
 author:
-  - name: Nora Jones 
-    url: https://example.com/norajones
-    affiliation: Spacely Sprockets
-    affiliation_url: https://example.com/spacelysprokets
+  - name: Kathryn Denning
+    url: https://psychology.uoregon.edu/profile/kdenning/
+    affiliation: University of Oregon
+    affiliation_url: https://www.uoregon.edu/
 date: 03-19-2019
 output:
   distill::distill_article:

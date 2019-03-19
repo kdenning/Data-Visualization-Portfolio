@@ -5,13 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "1093979278",
+    "hash" : "1082555764",
     "id" : "11AE1B30",
-    "lastKnownWriteTime" : 1553025476,
-    "last_content_update" : 1553025476,
+    "lastKnownWriteTime" : 1553027289,
+    "last_content_update" : 1553027289705,
     "path" : "~/Dropbox/Oregon/Classes/Data Science 2/classproject/_posts/welcome/welcome.Rmd",
     "project_path" : "_posts/welcome/welcome.Rmd",
     "properties" : {
+        "cursorPosition" : "7,37",
+        "scrollLine" : "1"
     },
     "read_only" : false,
     "read_only_alternatives" : [
