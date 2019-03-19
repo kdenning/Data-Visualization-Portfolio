@@ -2,16 +2,31 @@
   {
     "path": "posts/welcome/",
     "title": "Welcome to Data Visualization Portfolio for Class",
-    "description": "Welcome to our new blog, Data Visualization Portfolio for Class. We hope you enjoy \nreading what we have to say!",
+    "description": "Welcome to my class blog, Data Visualization Portfolio for Class. I hope you enjoy!",
     "author": [
       {
-        "name": "Nora Jones",
-        "url": "https://example.com/norajones"
+        "name": "Kathryn Denning",
+        "url": "https://psychology.uoregon.edu/profile/kdenning/"
       }
     ],
     "date": "2019-03-19",
     "categories": [],
     "preview": {},
-    "last_modified": "2019-03-19T12:57:57-07:00"
+    "last_modified": "2019-03-19T13:46:08-07:00"
+  },
+  {
+    "path": "posts/2019-03-19-data-visualization-1-the-before-version/",
+    "title": "Data visualization 1: The Before version",
+    "description": "This is the original version of Data visualization 1, before undergoing peer review and edits. There are two plots, one that shows frequency and the other that shows proportion.",
+    "author": [
+      {
+        "name": "Kathryn Denning",
+        "url": "https://psychology.uoregon.edu/profile/kdenning/"
+      }
+    ],
+    "date": "2019-03-19",
+    "categories": [],
+    "preview": "posts/2019-03-19-data-visualization-1-the-before-version/data-visualization-1-the-before-version_files/figure-html5/unnamed-chunk-1-1.png",
+    "last_modified": "2019-03-19T14:01:11-07:00"
   }
 ]
