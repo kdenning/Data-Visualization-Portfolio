@@ -1,0 +1,12 @@
+name: "classproject"
+title: "Data Visualization Portfolio for Class"
+description: |
+  Data Visualization Portfolio for Class
+output_dir: "docs"
+navbar:
+  right:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+output: distill::distill_article

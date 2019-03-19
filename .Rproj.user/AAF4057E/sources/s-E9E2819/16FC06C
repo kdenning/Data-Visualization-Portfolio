@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1553025483932.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1863708126",
+    "id" : "16FC06C",
+    "lastKnownWriteTime" : 1553025476,
+    "last_content_update" : 1553025476,
+    "path" : "~/Dropbox/Oregon/Classes/Data Science 2/classproject/about.Rmd",
+    "project_path" : "about.Rmd",
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
