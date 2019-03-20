@@ -1,7 +1,7 @@
 ---
 title: "Data Visualization 2: The Before Version"
 description: |
-  This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located.
+  This visualization displays the data from the first visualization differently by using a barplot and filling the bars with the region in which the state is located.
 author:
   - name: Kathryn Denning
     url: https://psychology.uoregon.edu/profile/kdenning/
@@ -173,7 +173,6 @@ plot_freq_bystate_andregion2 <- plot_freq_bystate_andregion %>%
   unique()
 ```
 
-The plot below used the same data as Data Visualization 1, but instead incorporated that data into a barplot and added region as a variable. The barplot is organized with states in descending order according to population size, in order for outlier states (one whos frequency of observations stands out in comparison to other states of similiar population sizes) to become more visible. The states are filled depending on what region in the country they are from (e.g., Northeast, South, Midwest, or West).
 
 ```{r plot2}
 #bar plot
@@ -190,5 +189,11 @@ ggplot(plot_freq_bystate_andregion2, aes(reorder(state_abrv, popestimate2018), n
        caption = "Data from National UFO Reporting Center and US Census Bureau")
 ```
 
-As can be seen in the plot above, there are a few issues that need to be addressed. First, it is very obvious that axis with the state names needs changed so the state names do not overlap. Secondly, the plot is somewhat difficult to read in regards to what states/regions have the most observations.
+### What you're seeing:
+The plot above used the same data as Data Visualization 1, but instead incorporated that data into a barplot and added region as a variable. The barplot is organized with states in descending order according to population size, in order for outlier states (states in which the frequency of observations stands out in comparison to other states of similiar population sizes) to become more visible. For instance, Virginia, Washington, and Oregon appear to have a higher frequency of observations than other states of a similiar size.
+
+The states are filled depending on what region in the country they are from (e.g., Northeast, South, Midwest, or West). However, with the organization in descending population size, it is kind of hard to make overall interpretations of region based on this plot, though it appears that the south and west have states with higher frequencies of UFO observations.
+
+### Data visualization changes needed:
+As can be seen in the plot above, there are a few issues that need to be addressed. First, it is very obvious that axis with the state names needs changed so the state names do not overlap. Second, the plot is somewhat difficult to read in regards to what states/regions have the most observations, so might need to change the organization or outcome variable.
 

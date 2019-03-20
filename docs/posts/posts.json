@@ -27,7 +27,7 @@
     "date": "2019-03-19",
     "categories": [],
     "preview": "posts/2019-03-19-data-visualization-1-the-before-version/data-visualization-1-the-before-version_files/figure-html5/unnamed-chunk-1-1.png",
-    "last_modified": "2019-03-19T14:03:39-07:00"
+    "last_modified": "2019-03-19T19:59:23-07:00"
   },
   {
     "path": "posts/2019-03-19-data-visualization-1-the-after-version/",
@@ -42,12 +42,12 @@
     "date": "2019-03-19",
     "categories": [],
     "preview": "posts/2019-03-19-data-visualization-1-the-after-version/data-visualization-1-the-after-version_files/figure-html5/unnamed-chunk-1-1.png",
-    "last_modified": "2019-03-19T14:18:59-07:00"
+    "last_modified": "2019-03-19T18:38:43-07:00"
   },
   {
     "path": "posts/2019-03-19-data-visualization-2-the-before-version/",
     "title": "Data Visualization 2: The Before Version",
-    "description": "This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located.",
+    "description": "This visualization displays the data from the first visualization differently by using a barplot and filling the bars with the region in which the state is located.",
     "author": [
       {
         "name": "Kathryn Denning",
@@ -57,7 +57,7 @@
     "date": "2019-03-19",
     "categories": [],
     "preview": "posts/2019-03-19-data-visualization-2-the-before-version/data-visualization-2-the-before-version_files/figure-html5/plot2-1.png",
-    "last_modified": "2019-03-19T14:35:04-07:00"
+    "last_modified": "2019-03-19T18:09:06-07:00"
   },
   {
     "path": "posts/2019-03-19-data-visualization-2-the-after-version/",
@@ -73,5 +73,20 @@
     "categories": [],
     "preview": "posts/2019-03-19-data-visualization-2-the-after-version/data-visualization-2-the-after-version_files/figure-html5/unnamed-chunk-1-1.png",
     "last_modified": "2019-03-19T15:12:21-07:00"
+  },
+  {
+    "path": "posts/2019-03-19-data-visualization-3-the-before-version/",
+    "title": "Data Visualization 3: The Before Version",
+    "description": "These visualizations show the UFO observations per county in Oregon since 1905, with the second plot taking into accounty population size per county.",
+    "author": [
+      {
+        "name": "Kathryn Denning",
+        "url": "https://psychology.uoregon.edu/profile/kdenning/"
+      }
+    ],
+    "date": "2019-03-19",
+    "categories": [],
+    "preview": "posts/2019-03-19-data-visualization-3-the-before-version/data-visualization-3-the-before-version_files/figure-html5/unnamed-chunk-1-1.png",
+    "last_modified": "2019-03-19T20:10:45-07:00"
   }
 ]

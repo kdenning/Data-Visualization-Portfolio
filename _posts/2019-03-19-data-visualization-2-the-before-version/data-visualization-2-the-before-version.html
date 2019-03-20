@@ -21,7 +21,7 @@
   <!--radix_placeholder_meta_tags-->
   <title>Data Visualization 2: The Before Version</title>
   
-  <meta property="description" itemprop="description" content="This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located."/>
+  <meta property="description" itemprop="description" content="This visualization displays the data from the first visualization differently by using a barplot and filling the bars with the region in which the state is located."/>
   
   
   <!--  https://schema.org/Article -->
@@ -32,19 +32,19 @@
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
   <meta property="og:title" content="Data Visualization 2: The Before Version"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located."/>
+  <meta property="og:description" content="This visualization displays the data from the first visualization differently by using a barplot and filling the bars with the region in which the state is located."/>
   <meta property="og:locale" content="en_US"/>
   
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
   <meta property="twitter:title" content="Data Visualization 2: The Before Version"/>
-  <meta property="twitter:description" content="This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located."/>
+  <meta property="twitter:description" content="This visualization displays the data from the first visualization differently by using a barplot and filling the bars with the region in which the state is located."/>
   
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output"]}},"value":[{"type":"character","attributes":{},"value":["Data Visualization 2: The Before Version"]},{"type":"character","attributes":{},"value":["This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located.\n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url"]}},"value":[{"type":"character","attributes":{},"value":["Kathryn Denning"]},{"type":"character","attributes":{},"value":["https://psychology.uoregon.edu/profile/kdenning/"]}]}]},{"type":"character","attributes":{},"value":["03-19-2019"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[false]}]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output"]}},"value":[{"type":"character","attributes":{},"value":["Data Visualization 2: The Before Version"]},{"type":"character","attributes":{},"value":["This visualization displays the data from the first visualization differently by using a barplot and filling the bars with the region in which the state is located.\n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url"]}},"value":[{"type":"character","attributes":{},"value":["Kathryn Denning"]},{"type":"character","attributes":{},"value":["https://psychology.uoregon.edu/profile/kdenning/"]}]}]},{"type":"character","attributes":{},"value":["03-19-2019"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[false]}]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   
@@ -942,7 +942,7 @@
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Data Visualization 2: The Before Version","description":"This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located.","authors":[{"author":"Kathryn Denning","authorURL":"https://psychology.uoregon.edu/profile/kdenning/","affiliation":"&nbsp;","affiliationURL":"#"}],"publishedDate":"2019-03-19T00:00:00.000-07:00","citationText":"Denning, 2019"}
+{"title":"Data Visualization 2: The Before Version","description":"This visualization displays the data from the first visualization differently by using a barplot and filling the bars with the region in which the state is located.","authors":[{"author":"Kathryn Denning","authorURL":"https://psychology.uoregon.edu/profile/kdenning/","affiliation":"&nbsp;","affiliationURL":"#"}],"publishedDate":"2019-03-19T00:00:00.000-07:00","citationText":"Denning, 2019"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -953,7 +953,7 @@
 
 <div class="d-title">
 <h1>Data Visualization 2: The Before Version</h1>
-<p>This visualization displays the data from the first visualization slightly differently by using a barplot and filling the bars with the region in which the state is located.</p>
+<p>This visualization displays the data from the first visualization differently by using a barplot and filling the bars with the region in which the state is located.</p>
 </div>
 
 <div class="d-byline">
@@ -969,11 +969,14 @@
 <div class="layout-chunk" data-layout="l-body">
 
 </div>
-<p>The plot below used the same data as Data Visualization 1, but instead incorporated that data into a barplot and added region as a variable. The barplot is organized with states in descending order according to population size, in order for outlier states (one whos frequency of observations stands out in comparison to other states of similiar population sizes) to become more visible. The states are filled depending on what region in the country they are from (e.g., Northeast, South, Midwest, or West).</p>
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="data-visualization-2-the-before-version_files/figure-html5/plot2-1.png" width="624" /></p>
 </div>
-<p>As can be seen in the plot above, there are a few issues that need to be addressed. First, it is very obvious that axis with the state names needs changed so the state names do not overlap. Secondly, the plot is somewhat difficult to read in regards to what states/regions have the most observations.</p>
+<h3 id="what-youre-seeing">What you’re seeing:</h3>
+<p>The plot above used the same data as Data Visualization 1, but instead incorporated that data into a barplot and added region as a variable. The barplot is organized with states in descending order according to population size, in order for outlier states (states in which the frequency of observations stands out in comparison to other states of similiar population sizes) to become more visible. For instance, Virginia, Washington, and Oregon appear to have a higher frequency of observations than other states of a similiar size.</p>
+<p>The states are filled depending on what region in the country they are from (e.g., Northeast, South, Midwest, or West). However, with the organization in descending population size, it is kind of hard to make overall interpretations of region based on this plot, though it appears that the south and west have states with higher frequencies of UFO observations.</p>
+<h3 id="data-visualization-changes-needed">Data visualization changes needed:</h3>
+<p>As can be seen in the plot above, there are a few issues that need to be addressed. First, it is very obvious that axis with the state names needs changed so the state names do not overlap. Second, the plot is somewhat difficult to read in regards to what states/regions have the most observations, so might need to change the organization or outcome variable.</p>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>

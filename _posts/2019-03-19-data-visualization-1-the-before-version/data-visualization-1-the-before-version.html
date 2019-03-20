@@ -963,15 +963,23 @@
 </div>
 
 <div class="d-article">
-<p>The plot below uses data from the National UFO Reporting Center (<a href="http://www.nuforc.org/index.html" class="uri">http://www.nuforc.org/index.html</a>) to show the frequency of reported UFO sightings for January 2019 across the continental United States.</p>
+<p>The plot below uses data from the National UFO Reporting Center (<a href="http://www.nuforc.org/index.html" class="uri">http://www.nuforc.org/index.html</a>) to show the frequency of reported UFO sightings for January 2019 across the continental United States. Latitude and Longitude come from the “ggplot2::map_data(”state“)” data in R.</p>
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="data-visualization-1-the-before-version_files/figure-html5/unnamed-chunk-1-1.png" width="624" /></p>
 </div>
-<p>However, you can see in this plot that many of the states with the higher frequency of UFO reports are also states with larger populations, so this plot isn’t really telling us <em>which</em> state sees more UFO citings, but which state has more people to report citings. Thus, I decided to look into which state has the highest proportion of citings for their population.</p>
+<h3 id="what-youre-seeing">What you’re seeing:</h3>
+<p>In this plot, you see a map of the continental United States, with the states filled in according to the frequency of UFO citings reported per state.</p>
+<h3 id="data-visualization-changes-needed">Data visualization changes needed:</h3>
+<p>You can see in this plot that many of the states with the higher frequency of UFO reports are also states with larger populations, so this plot isn’t really telling us which state <em>reports more</em> UFO citings, but which state <em>has more people to report</em> citings. Thus, I decided to look into which state has the highest proportion of citings for their population.</p>
+<h2 id="plot-1b">Plot 1B:</h2>
+<p>This plot also includes data from the U.S. Census on the population per state.</p>
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="data-visualization-1-the-before-version_files/figure-html5/plot%201%20-%20chloropleth%20with%20proportion%20of%20observations%20per%20population-1.png" width="624" /></p>
 </div>
-<p>This plot shows that the proportion and frequency of UFO citings per state differ. Interestingly, the region that shows the highest proportion of citings now appears to be the Pacific Northwest (with Idaho and Montana included!). However, don’t overlook the fact that Rhode Island (so small its almost not visible on the map) has a high proportion as well.</p>
+<h3 id="what-youre-seeing-1">What you’re seeing:</h3>
+<p>Through these two plots, it is obvious that the proportion and frequency of UFO citings per state differ. Interestingly, the region that shows the highest proportion of citings now appears to be the Pacific Northwest (with Idaho and Montana included!). As the Pacific Northwest is known for folklore, such as embracing Big Foot (<a href="https://www.seattlemet.com/articles/2016/6/28/where-to-find-bigfoot-in-the-Pacific-Northwest" class="uri">https://www.seattlemet.com/articles/2016/6/28/where-to-find-bigfoot-in-the-Pacific-Northwest</a>) and having a UFO festival in a town in Oregon that has historically had UFO citings (<a href="https://ufofest.com/" class="uri">https://ufofest.com/</a>), it is not suprising this region has the highest proportion of citings per their population. However, don’t overlook the fact that Rhode Island (so small its almost not visible on the map) has a high proportion as well!</p>
+<h3 id="data-visualization-changes-needed-1">Data visualization changes needed:</h3>
+<p>A few things that could improve this plot are removing the scientific notation in the scale for proportion, removing the gray background, and combining the plots in a plot side-by-side to make them easier to compare.</p>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>

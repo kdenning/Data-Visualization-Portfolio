@@ -126,7 +126,7 @@ statefilled1_withlabs <- state_filled +
        caption = "Data from National UFO Reporting Center and US Census Bureau")
 
 #importing dataset with population stats from the United States Census Bureau
-pop <- read_csv("nst-est2018-alldata  .csv")
+pop <- read_csv("nst-est2018-alldata.csv")
 
 #cleaning the formatting of the names
 pop %<>% 
@@ -154,7 +154,7 @@ pop_state_freq_merged <- left_join(pop_state, plot1_freq_merged)
 #converting the frequency of observations to be a proportion
 freq_bypop_state <- pop_state_freq_merged %>% 
   group_by(state_full) %>% 
-  mutate(freq_bypop = ((n/popestimate2018))) %>% 
+  mutate(freq_bypop = ((n/popestimate2018)*1000)) %>% 
   summarize(freq_bypop_perstate = mean(freq_bypop))
 
 #adding the proportion back into the main dataset
@@ -172,9 +172,9 @@ state_filled2 <- state_base +
       geom_polygon(color = "white", fill = NA) +
       scale_fill_continuous_sequential("viridis", name = "Proportion", 
                                        labels=c("Minimum (0)",
-                                                "Maximum (.000004)"),
-                                       limits=c(0,.000004), 
-                                       breaks=c(0,.000004)) + ditch_the_axes
+                                                "Maximum (.004)"),
+                                       limits=c(0,.004), 
+                                       breaks=c(0,.004)) + ditch_the_axes
 #adding labels
 state_filled2_withlabs <- state_filled2 + 
   labs(title = "Proportion of UFO citings per state",
@@ -183,7 +183,7 @@ state_filled2_withlabs <- state_filled2 +
        No information was provided for Vermont.")
 
 #combining plots 1A and 1B into one plot side by side
-combined1 <- plot_grid(state_filled, state_filled2, labels = c("Frequency of UFO citings per state in January 2019", "Proportion of citings per state by population in January 2019"), align = "hv", nrow = 2, hjust = -.05, vjust = 1)
+combined1 <- plot_grid(state_filled, state_filled2, labels = c("Frequency of UFO citings per state in January 2019", "Proportion of citings per 1000 people in each state in January 2019"), align = "hv", nrow = 2, hjust = -.05, vjust = 1)
 
 #Adding a caption
 final1 <- ggdraw(add_sub(combined1, "Data from National UFO Reporting Center and US Census Bureau", x = .5, y = 1, hjust = .3, vjust = 0.5, fontfamily = "",
@@ -195,4 +195,9 @@ final1 <- ggdraw(add_sub(combined1, "Data from National UFO Reporting Center and
 final1
 ```
 
-Using the same data as the first version of this plot, the "After" version of the plot combines both plots into one using library(cowplot) and adjusts the proportion scale to not be using scientific notation.
+
+### What you're seeing:
+Using the same data as the first version of this plot, the "After" version of the plot combines both plots into one using library(cowplot) and adjusts the proportion scale to not be using scientific notation. Thus, this visualization more clearly demonstrates that the states with the highest frequency do not necessarily have the highest of number of UFO citings when considering their population size. In comparison to the first version with separate plots, this combined plot emphasizes the higher proportion of UFO citings in the Pacific Northwest.
+
+### Data visualization changes:
+I combined the two separate plots into one plot via cowplot, dropped the gray background in favor of a white background, and changed the scale of the proportion to no longer have scientific notation. I also added the month and year the data was collected to the title of each plot.

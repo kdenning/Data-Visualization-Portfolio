@@ -113,7 +113,15 @@ state_filled +
        caption = "Data from National UFO Reporting Center and US Census Bureau")
 ```
 
-However, you can see in this plot that many of the states with the higher frequency of UFO reports are also states with larger populations, so this plot isn't really telling us *which* state sees more UFO citings, but which state has more people to report citings. Thus, I decided to look into which state has the highest proportion of citings for their population.
+### What you're seeing:
+In this plot, you see a map of the continental United States, with the states filled in according to the frequency of UFO citings reported per state.
+
+### Data visualization changes needed:
+You can see in this plot that many of the states with the higher frequency of UFO reports are also states with larger populations, so this plot isn't really telling us which state *reports more* UFO citings, but which state *has more people to report* citings. Thus, I decided to look into which state has the highest proportion of citings for their population.
+
+## Plot 1B:
+
+This plot also includes data from the U.S. Census on the population per state.
 
 ```{r plot 1 - chloropleth with proportion of observations per population}
 #importing dataset with population stats from the United States Census Bureau
@@ -166,8 +174,12 @@ state_filled2 <- state_base +
 #adding labels
 state_filled2 + 
   labs(title = "Proportion of UFO citings per state",
-       subtitle = "Proportion determined by number of citings divided by population size",
+       subtitle = "Proportion shows the number of citings divided by population size",
        caption = "Data from National UFO Reporting Center and US Census Bureau")
 ```
 
-This plot shows that the proportion and frequency of UFO citings per state differ. Interestingly, the region that shows the highest proportion of citings now appears to be the Pacific Northwest (with Idaho and Montana included!). However, don't overlook the fact that Rhode Island (so small its almost not visible on the map) has a high proportion as well.
+### What you're seeing:
+Through these two plots, it is obvious that the proportion and frequency of UFO citings per state differ. Interestingly, the region that shows the highest proportion of citings now appears to be the Pacific Northwest (with Idaho and Montana included!). As the Pacific Northwest is known for folklore, such as embracing Big Foot (https://www.seattlemet.com/articles/2016/6/28/where-to-find-bigfoot-in-the-Pacific-Northwest) and having a UFO festival in a town in Oregon that has historically had UFO citings (https://ufofest.com/), it is not suprising this region has the highest proportion of citings per their population. However, don't overlook the fact that Rhode Island (so small its almost not visible on the map) has a high proportion as well!
+
+### Data visualization changes needed:
+A few things that could improve this plot are removing the scientific notation in the scale for proportion, removing the gray background, and combining the plots in a plot side-by-side to make them easier to compare.
