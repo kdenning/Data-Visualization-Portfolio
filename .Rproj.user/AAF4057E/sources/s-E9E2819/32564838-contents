@@ -1,0 +1,203 @@
+---
+title: "Data Visualization 1: The After Version"
+description: |
+  The final version of Data Visualization 1, which combined the two separate plots into one and made a few other minor changes.
+author:
+  - name: Kathryn Denning
+    url: https://psychology.uoregon.edu/profile/kdenning/
+date: 03-19-2019
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+#install.packages("rio")
+#install.packages("here")
+#install.packages("tidyverse")
+#install.packages("magrittr")
+#install.packages("RColorBrewer")
+#install.packages("ggridges")
+#install.packages("XML")
+#install.packages("janitor")
+#install.packages("colorspace")
+#install.packages("ggrepel")
+#install.packages("cowplot")
+#install.packages("shadowtext")
+library(rio)
+library(here)
+library(tidyverse)
+library(magrittr)
+library(RColorBrewer)
+library(ggridges)
+library(XML)
+library(janitor)
+library(colorspace)
+#library(ggsci)
+library(ggrepel)
+library(cowplot)
+library(shadowtext)
+
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
+#read in data on all UFO citings in Jan 2019
+x <- readHTMLTable("http://www.nuforc.org/webreports/ndxe201901.html")
+#Turn it into a dataset
+ufo_jan19 <- plyr::ldply(x, data.frame)
+#power was out, so couldn't google how to add a key when there isn't one - so just wrote it into a csv and added in excel
+write.csv(ufo_jan19,'ufo_jan19.csv')
+ufo_jan19 <- read_csv("ufo_jan19.csv")
+
+#cleaned dataset to be lowercase and to only include US states
+clean <- ufo_jan19 %>%
+  clean_names() %>% 
+  filter(state != "AB") %>% 
+  filter(state != "ON") %>% 
+  filter(!is.na(state))
+
+#Read in data of all ufo citings in Oregon ever
+y <- readHTMLTable("http://www.nuforc.org/webreports/ndxlOR.html")
+#Turn it into a dataset
+ufo_oregon <- plyr::ldply(y, data.frame)
+
+state <- ggplot2::map_data("state")
+
+#need to have a variable with the full state names in lowercase to merge datasets
+state_fullname <- datasets::state.name #calling dataset with state names
+state_fullname <- sapply(state.name, tolower) #making them lowercase
+
+state_abbrv <- datasets::state.abb #calling dataset with abbreviations to use as key when merging dataset to get full names in main dataset so that it can be combined with dataset used to make map of US
+
+state_key <- data.frame(
+  state_full = state_fullname,
+  state_abrv = state_abbrv
+) #making dataset with the two character strings state_fullname and state_abbrv
+
+state_key %<>% clean_names
+
+clean %<>% 
+  mutate(state_abrv = state)
+
+join1 <- left_join(clean, state_key) #joining dataset with fullnames to cleaned ufo dataset
+
+#getting frequency of UFO citings per state
+plot1 <- join1 %>% 
+  group_by(state_full) %>% 
+  count()
+
+#cleaning dataset that has state information for plot of US so that it can be merged
+state_fixed <- state %>% 
+  mutate(state_full = region) %>% 
+  select(-region) %>% 
+  clean_names
+
+#merging data with frequency of UFO with plot dataset
+plot1_freq_merged <- left_join(state_fixed, plot1)
+
+#code that removes axes from plot of US
+ditch_the_axes <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank()
+  )
+
+#code that makes US base
+state_base <- ggplot(data = plot1_freq_merged, 
+                     mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(color = "white", fill = "white")
+
+#code that fills the states with frequency data
+state_filled <- state_base + 
+  geom_polygon(data = plot1_freq_merged, aes(fill = n), color = "white") +
+      geom_polygon(color = "white", fill = NA) +
+      scale_fill_continuous_sequential("viridis", name = "Frequency") +
+  ditch_the_axes
+
+#adding title
+statefilled1_withlabs <- state_filled + 
+  labs(title = "Frequency of UFO citings per state in January 2019",
+       caption = "Data from National UFO Reporting Center and US Census Bureau")
+
+#importing dataset with population stats from the United States Census Bureau
+pop <- read_csv("nst-est2018-alldata.csv")
+
+#cleaning the formatting of the names
+pop %<>% 
+  clean_names() 
+
+#changing the state name variable so that it will be the same when merging later and making data lowercase
+pop$state_full <- tolower(pop$name)
+
+#cleaning dataset to exclude areas that weren't in my UFO dataset
+pop %<>%
+  filter(state_full != "puerto rico") %>% 
+  filter(state_full != "district of columbia") %>% 
+  filter(state_full != "united states")
+
+#making dataset that is only the 50 states, ignoring the four regions for the moment
+pop_state <- pop %>%
+  filter(state_full != "northeast region") %>% 
+  filter(state_full != "midwest region") %>% 
+  filter(state_full != "south region") %>% 
+  filter(state_full != "west region")
+
+#merging population dataset with the data on the frequency of UFO observations
+pop_state_freq_merged <- left_join(pop_state, plot1_freq_merged)
+
+#converting the frequency of observations to be a proportion
+freq_bypop_state <- pop_state_freq_merged %>% 
+  group_by(state_full) %>% 
+  mutate(freq_bypop = ((n/popestimate2018)*1000)) %>% 
+  summarize(freq_bypop_perstate = mean(freq_bypop))
+
+#adding the proportion back into the main dataset
+pop_state_freq_merged1 <- left_join(plot1_freq_merged, freq_bypop_state)
+
+#base of US for the plot
+state_base2 <- ggplot(data = pop_state_freq_merged1 , mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(color = "white", fill = "white")
+
+#filling in the states with the proportion data
+state_filled2 <- state_base + 
+  geom_polygon(data = pop_state_freq_merged1 , aes(fill = freq_bypop_perstate), 
+               color = "white") +
+      geom_polygon(color = "white", fill = NA) +
+      scale_fill_continuous_sequential("viridis", name = "Proportion", 
+                                       labels=c("Minimum (0)",
+                                                "Maximum (.004)"),
+                                       limits=c(0,.004), 
+                                       breaks=c(0,.004)) + ditch_the_axes
+#adding labels
+state_filled2_withlabs <- state_filled2 + 
+  labs(title = "Proportion of UFO citings per state",
+       subtitle = "Proportion determined by number of citings divided by population size",
+       caption = "Data from National UFO Reporting Center and US Census Bureau. 
+       No information was provided for Vermont.")
+
+#combining plots 1A and 1B into one plot side by side
+combined1 <- plot_grid(state_filled, state_filled2, labels = c("Frequency of UFO citings per state in January 2019", "Proportion of citings per 1000 people in each state in January 2019"), align = "hv", nrow = 2, hjust = -.05, vjust = 1)
+
+#Adding a caption
+final1 <- ggdraw(add_sub(combined1, "Data from National UFO Reporting Center and US Census Bureau", x = .5, y = 1, hjust = .3, vjust = 0.5, fontfamily = "",
+  fontface = "plain", colour = "black", size = 10, angle = 0,
+  lineheight = 0.9))
+```
+
+```{r}
+final1
+```
+
+
+### What you're seeing:
+Using the same data as the first version of this plot, the "After" version of the plot combines both plots into one using library(cowplot) and adjusts the proportion scale to not be using scientific notation. Thus, this visualization more clearly demonstrates that the states with the highest frequency do not necessarily have the highest of number of UFO citings when considering their population size. In comparison to the first version with separate plots, this combined plot emphasizes the higher proportion of UFO citings in the Pacific Northwest.
+
+### Data visualization changes:
+I combined the two separate plots into one plot via cowplot, dropped the gray background in favor of a white background, and changed the scale of the proportion to no longer have scientific notation. I also added the month and year the data was collected to the title of each plot.

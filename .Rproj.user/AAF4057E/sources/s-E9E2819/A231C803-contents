@@ -1,0 +1,185 @@
+---
+title: "Data Visualization 1: The Before version"
+description: |
+  This is the original version of Data visualization 1, before undergoing peer review and edits. There are two plots, one that shows frequency and the other that shows proportion.
+author:
+  - name: Kathryn Denning
+    url: https://psychology.uoregon.edu/profile/kdenning/
+date: 03-19-2019
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(rio)
+library(here)
+library(tidyverse)
+library(magrittr)
+library(RColorBrewer)
+library(ggridges)
+library(XML)
+library(janitor)
+library(colorspace)
+library(ggridges)
+#library(ggsci)
+library(ggrepel)
+
+#read in data on all UFO citings in Jan 2019
+x <- readHTMLTable("http://www.nuforc.org/webreports/ndxe201901.html")
+#Turn it into a dataset
+ufo_jan19 <- plyr::ldply(x, data.frame)
+#power was out, so couldn't google how to add a key when there isn't one - so just wrote it into a csv and added in excel
+write.csv(ufo_jan19,'ufo_jan19.csv')
+ufo_jan19 <- read_csv("ufo_jan19.csv")
+
+#cleaned dataset to be lowercase and to only include US states
+clean <- ufo_jan19 %>%
+  clean_names() %>% 
+  filter(state != "AB") %>% 
+  filter(state != "ON") %>% 
+  filter(!is.na(state))
+
+#Read in data of all ufo citings in Oregon ever
+y <- readHTMLTable("http://www.nuforc.org/webreports/ndxlOR.html")
+#Turn it into a dataset
+ufo_oregon <- plyr::ldply(y, data.frame)
+
+state <- ggplot2::map_data("state")
+
+#need to have a variable with the full state names in lowercase to merge datasets
+state_fullname <- datasets::state.name #calling dataset with state names
+state_fullname <- sapply(state.name, tolower) #making them lowercase
+
+state_abbrv <- datasets::state.abb #calling dataset with abbreviations to use as key when merging dataset to get full names in main dataset so that it can be combined with dataset used to make map of US
+
+state_key <- data.frame(
+  state_full = state_fullname,
+  state_abrv = state_abbrv
+) #making dataset with the two character strings state_fullname and state_abbrv
+
+state_key %<>% clean_names
+
+clean %<>% 
+  mutate(state_abrv = state)
+
+join1 <- left_join(clean, state_key) #joining dataset with fullnames to cleaned ufo dataset
+
+#getting frequency of UFO citings per state
+plot1 <- join1 %>% 
+  group_by(state_full) %>% 
+  count()
+
+#cleaning dataset that has state information for plot of US so that it can be merged
+state_fixed <- state %>% 
+  mutate(state_full = region) %>% 
+  select(-region) %>% 
+  clean_names
+
+#merging data with frequency of UFO with plot dataset
+plot1_freq_merged <- left_join(state_fixed, plot1)
+
+#code that removes axes from plot of US
+ditch_the_axes <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank()
+  )
+
+#code that makes US base
+state_base <- ggplot(data = plot1_freq_merged, 
+                     mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(color = "white", fill = "white")
+
+#code that fills the states with frequency data
+state_filled <- state_base + 
+  geom_polygon(data = plot1_freq_merged, aes(fill = n), color = "white") +
+      geom_polygon(color = "white", fill = NA) +
+      scale_fill_continuous_sequential("viridis", name = "Frequency") +
+  ditch_the_axes
+```
+
+The plot below uses data from the National UFO Reporting Center (http://www.nuforc.org/index.html) to show the frequency of reported UFO sightings for January 2019 across the continental United States. Latitude and Longitude come from the "ggplot2::map_data("state")" data in R.
+
+```{r}
+#adding title
+state_filled + 
+  labs(title = "Frequency of UFO citings per state in January 2019",
+       caption = "Data from National UFO Reporting Center and US Census Bureau")
+```
+
+### What you're seeing:
+In this plot, you see a map of the continental United States, with the states filled in according to the frequency of UFO citings reported per state.
+
+### Data visualization changes needed:
+You can see in this plot that many of the states with the higher frequency of UFO reports are also states with larger populations, so this plot isn't really telling us which state *reports more* UFO citings, but which state *has more people to report* citings. Thus, I decided to look into which state has the highest proportion of citings for their population.
+
+## Plot 1B:
+
+This plot also includes data from the U.S. Census on the population per state.
+
+```{r plot 1 - chloropleth with proportion of observations per population}
+#importing dataset with population stats from the United States Census Bureau
+pop <- read_csv("nst-est2018-alldata .csv")
+
+#cleaning the formatting of the names
+pop %<>% 
+  clean_names() 
+
+#changing the state name variable so that it will be the same when merging later and making data lowercase
+pop$state_full <- tolower(pop$name)
+
+#cleaning dataset to exclude areas that weren't in my UFO dataset
+pop %<>%
+  filter(state_full != "puerto rico") %>% 
+  filter(state_full != "district of columbia") %>% 
+  filter(state_full != "united states")
+
+#making dataset that is only the 50 states, ignoring the four regions for the moment
+pop_state <- pop %>%
+  filter(state_full != "northeast region") %>% 
+  filter(state_full != "midwest region") %>% 
+  filter(state_full != "south region") %>% 
+  filter(state_full != "west region")
+
+#merging population dataset with the data on the frequency of UFO observations
+pop_state_freq_merged <- left_join(pop_state, plot1_freq_merged)
+
+#converting the frequency of observations to be a proportion
+freq_bypop_state <- pop_state_freq_merged %>% 
+  group_by(state_full) %>% 
+  mutate(freq_bypop = ((n/popestimate2018))) %>% 
+  summarize(freq_bypop_perstate = mean(freq_bypop))
+
+#adding the proportion back into the main dataset
+pop_state_freq_merged1 <- left_join(plot1_freq_merged, freq_bypop_state)
+
+#base of US for the plot
+state_base2 <- ggplot(data = pop_state_freq_merged1 , mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(color = "white", fill = "white")
+
+#filling in the states with the proportion data
+state_filled2 <- state_base + 
+  geom_polygon(data = pop_state_freq_merged1 , aes(fill = freq_bypop_perstate), color = "white") +
+      geom_polygon(color = "white", fill = NA) +
+      scale_fill_continuous_sequential("viridis", name = "Proprtion") +
+  ditch_the_axes
+
+#adding labels
+state_filled2 + 
+  labs(title = "Proportion of UFO citings per state",
+       subtitle = "Proportion shows the number of citings divided by population size",
+       caption = "Data from National UFO Reporting Center and US Census Bureau")
+```
+
+### What you're seeing:
+Through these two plots, it is obvious that the proportion and frequency of UFO citings per state differ. Interestingly, the region that shows the highest proportion of citings now appears to be the Pacific Northwest (with Idaho and Montana included!). As the Pacific Northwest is known for folklore, such as embracing Big Foot (https://www.seattlemet.com/articles/2016/6/28/where-to-find-bigfoot-in-the-Pacific-Northwest) and having a UFO festival in a town in Oregon that has historically had UFO citings (https://ufofest.com/), it is not suprising this region has the highest proportion of citings per their population. However, don't overlook the fact that Rhode Island (so small its almost not visible on the map) has a high proportion as well!
+
+### Data visualization changes needed:
+A few things that could improve this plot are removing the scientific notation in the scale for proportion, removing the gray background, and combining the plots in a plot side-by-side to make them easier to compare.

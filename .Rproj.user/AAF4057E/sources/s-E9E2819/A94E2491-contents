@@ -1,0 +1,282 @@
+---
+title: "Data Visualization 3: The Before Version"
+description: |
+  These visualizations show the UFO observations per county in Oregon since 1905, with the second plot taking into accounty population size per county.
+author:
+  - name: Kathryn Denning
+    url: https://psychology.uoregon.edu/profile/kdenning/
+date: 03-19-2019
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(rio)
+library(here)
+library(tidyverse)
+library(magrittr)
+library(RColorBrewer)
+library(ggridges)
+library(XML)
+library(janitor)
+library(colorspace)
+library(ggridges)
+#library(ggsci)
+library(ggrepel)
+knitr::opts_chunk$set()
+
+#read in data on all UFO citings in Jan 2019
+x <- readHTMLTable("http://www.nuforc.org/webreports/ndxe201901.html")
+#Turn it into a dataset
+ufo_jan19 <- plyr::ldply(x, data.frame)
+#power was out, so couldn't google how to add a key when there isn't one - so just wrote it into a csv and added in excel
+write.csv(ufo_jan19,'ufo_jan19.csv')
+ufo_jan19 <- read_csv("ufo_jan19.csv")
+
+#cleaned dataset to be lowercase and to only include US states
+clean <- ufo_jan19 %>%
+  clean_names() %>% 
+  filter(state != "AB") %>% 
+  filter(state != "ON") %>% 
+  filter(!is.na(state))
+
+#Read in data of all ufo citings in Oregon ever
+y <- readHTMLTable("http://www.nuforc.org/webreports/ndxlOR.html")
+#Turn it into a dataset
+ufo_oregon <- plyr::ldply(y, data.frame)
+
+#cleaning the oregon dataset
+ufo_oregon %<>% clean_names() 
+
+#importing dataset with information about city, county, and population information
+oregon_city_county <- import("oregon_city_county.csv")
+
+#joining dataset of ufo data with oregon city and county data
+oregon_join1 <- left_join(oregon_city_county, ufo_oregon)
+
+#cleaning new dataset
+oregon_join1 %<>% 
+  na.omit() %>% 
+  select(-id)
+
+#getting informtion on the lat and long of each county for plotting
+county <- ggplot2::map_data("county")
+
+#changing the variables in county to have a key that will match ufo_oregon dataset
+oregon_county <- county %>% 
+  filter(region == "oregon") %>% 
+  mutate(county = subregion)
+
+oregon_join1$county <- tolower(oregon_join1$county)
+
+#merging the county lat long dataset with the oregon_join1 dataset
+oregon_join2 <- left_join(oregon_join1, oregon_county)
+
+#getting the frequency of observations per county
+oregon_plot_freq <- oregon_join2 %>% 
+  group_by(county) %>% 
+  count()
+
+#joining the frequency back with the main dataset
+oregon_join3 <- left_join(oregon_join2, oregon_plot_freq)
+
+#dropping region and subregion from new overall dataset
+oregon_join3 %<>% 
+  select(-c(region, subregion))
+
+state <- ggplot2::map_data("state")
+
+#need to have a varaible with the full state names in lowercase to merge datasets
+state_fullname <- datasets::state.name #calling dataset with state names
+state_fullname <- sapply(state.name, tolower) #making them lowercase
+
+state_abbrv <- datasets::state.abb #calling dataset with abbreviations to use as key when merging dataset to get full names in main dataset so that it can be combined with dataset used to make map of US
+
+state_key <- data.frame(
+  state_full = state_fullname,
+  state_abrv = state_abbrv
+) #making dataset with the two character strings state_fullname and state_abbrv
+
+state_key %<>% clean_names
+
+clean %<>% 
+  mutate(state_abrv = state)
+
+#creating the dataset for the state base for the plot
+
+state_fixed <- state %>% 
+  mutate(state_full = region) %>% 
+  select(-region) %>% 
+  clean_names
+
+oregon_base <- state_fixed %>% 
+  filter(state_full == "oregon")
+
+#making the base of oregon for the plot
+oregon_base <- ggplot(data = oregon_base, 
+                     mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(color = "white", fill = "white")
+
+#code that removes axes from plot of US
+ditch_the_axes <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank()
+  )
+
+#code that fills oregon with frequency data
+oregon_filled <- oregon_base + 
+  geom_polygon(data = oregon_join3, aes(fill = n), color = "white") +
+      geom_polygon(color = "white", fill = NA) +
+      scale_fill_continuous_sequential("viridis", name = "Frequency") +
+  ditch_the_axes
+
+#adding title
+plot_title_freq <- oregon_filled + 
+  labs(title = "Frequency of UFO citings per county in Oregon",
+       subtitle = "Top five counties labeled",
+       caption = "Data from National UFO Reporting Center and US Census Bureau")
+
+#figuring out top 5
+oregon_join3 %>% 
+  select(county, n, group) %>% 
+  arrange(-n) %>% 
+  unique() %>% 
+  filter(n > 6693)
+```
+
+This plot uses data from National UFO Reporting Center on the number of reported UFO citings in the state of Oregon since 1905. In order to plot the shape of the state including the counties and the correctly fill those counties with the correct UFO data, this plot uses information on the city/county association from http://www.ehealthlink.com/citytocounty.html to plot the shape of the state and fill the counties with the correct information. Latitude and Longitude come from the "Maps::County" data in R.
+
+```{r}
+#Adding labels for the top 5 counties
+plot_title_freq + theme(panel.background = element_rect(fill = "gray22")) +
+  annotate("text", 
+           label = "Multnomah", 
+           y = 45.5, 
+           x = -122.2, 
+           color = "white", 
+           size = 2.5,
+           fontface = "bold") +
+  annotate("text", 
+           label = "Lane", 
+           x = -122.7, 
+           y = 44, 
+           color = "white", 
+           size = 2.5,
+           fontface = "bold") +
+    annotate("text", 
+           label = "Washington", 
+           x = -123.3, 
+           y = 45.5, 
+           color = "white", 
+           size = 2.5,
+           fontface = "bold") +
+    annotate("text", 
+           label = "Marion", 
+           x = -122.1, 
+           y = 44.8, 
+           color = "white", 
+           size = 2.5,
+           fontface = "bold") +
+   annotate("text", 
+           label = "Clackamas", 
+           x = -122.2, 
+           y = 45.2, 
+           color = "white", 
+           size = 2.5,
+           fontface = "bold")
+```
+
+### What you're seeing:
+This plot shows the frequency of UFO observations per county in the state of Oregon. The five counties with the highest number of observations are labeled and, the darker the shade, the more observations there are. You can see that Lane County (Here, where Unviersity of Oregon is!) has the highest number of observations, which is interesting considering it is the second most populous city in Oregon. Following Lane County, the next four counties are all in other areas of the state with larger populations, either around Portland or Salem.
+
+### Data visualization changes needed:
+Similiar to with the plot showing the UFO citings per state, this information narrative of this plot might be more intuitive/useful if the plot was showing proportion of observations per population as opposed to frequency. Currently, with the plot showing frequency, the data being shown might be more of a function of those areas *having more people who are able to report UFO citings* and not some phenomenon in relation to the culture of the area (or more unexplainable phenomeon in that area!).
+
+## Plot 3B:
+
+```{r chloropleth of proportion in oregon, include = FALSE}
+#finding the proportion of observations per county
+oregon_plot_proportion <- oregon_join3 %>% 
+  group_by(county) %>% 
+  mutate(freq_bypop = (n/county_pop)) %>% 
+  summarize(freq_bypop_percounty = mean(freq_bypop))
+
+#adding proportion back into overall dataset
+oregon_join4 <- left_join(oregon_join3, oregon_plot_proportion)
+
+#filling in base with county proportion information
+oregon_filled_pro <- oregon_base + 
+  geom_polygon(data = oregon_join4, aes(fill = freq_bypop_percounty), color = "white") +
+      geom_polygon(color = "white", fill = NA) +
+      scale_fill_continuous_sequential("viridis", name = "Proportion") +
+  ditch_the_axes
+
+#adding title
+plot_title <- oregon_filled_pro + 
+  labs(title = "Proportion of UFO citings per county in Oregon",
+       subtitle = "Top five counties labeled",
+       caption = "Data from National UFO Reporting Center and US Census Bureau") 
+
+#Figuring out top 5 counties
+county_names <- oregon_join4 %>% 
+  select(county, freq_bypop_percounty, group) %>% 
+  arrange(-freq_bypop_percounty) %>% 
+  unique() %>% 
+  filter(freq_bypop_percounty > 0.06523439)
+```
+
+This plot also uses data on the county population size from an education resource called "Together we teach" (http://www.togetherweteach.com/TWTIC/uscityinfo/37or/37or.html).
+
+```{r}
+#Adding labels for the top 5 counties
+plot_title + 
+  theme(panel.background = element_rect(fill = "gray22")) +
+  annotate("text", 
+           label = "Baker", 
+           y = 44.7, 
+           x = -117.7, 
+           color = "white", 
+           size = 3.5,
+           fontface = "bold") +
+  annotate("text", 
+           label = "Lane", 
+           x = -122.7, 
+           y = 44, 
+           color = "white", 
+           size = 3.5,
+           fontface = "bold") +
+    annotate("text", 
+           label = "Curry", 
+           x = -124.5, 
+           y = 42.4, 
+           color = "white", 
+           size = 3,
+           fontface = "bold") +
+    annotate("text", 
+           label = "Tillamook", 
+           x = -124.2, 
+           y = 46, 
+           color = "white", 
+           size = 3,
+           fontface = "bold") +
+   annotate("text", 
+           label = "Lincoln", 
+           x = -124.2, 
+           y = 44.7, 
+           color = "white", 
+           size = 3,
+           fontface = "bold")
+```
+
+### What you're seeing:
+This plot demonstrates that the counties with the highest proportion of observations per county population differ from those that had the highest number of observations without taking into account population size. Interestingly, Lane County is the only county that made it in the Top 5 in both of the plots. The other counties with the highest proportion of observations are either along the coast or in the more remote and rural county of Baker County, which actually has the highest proportion of observations.
+
+### Data visualizations needed:
+These plots also need to be combined into one plot side-by-side as well change the text describing the county names using library(shadowtext) to be more visible across the county lines.

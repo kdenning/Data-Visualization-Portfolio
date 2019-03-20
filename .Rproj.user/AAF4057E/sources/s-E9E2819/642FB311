@@ -1,19 +1,19 @@
 {
     "collab_server" : "",
     "contents" : "",
-    "created" : 1553051630852.000,
+    "created" : 1553055960371.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "551729353",
-    "id" : "D150BF69",
+    "hash" : "0",
+    "id" : "642FB311",
     "lastKnownWriteTime" : 1553054934,
-    "last_content_update" : 1553054934711,
+    "last_content_update" : 1553054934,
     "path" : "~/Dropbox/Oregon/Classes/Data Science 2/classproject/_posts/2019-03-19-data-visualization-3-the-after-version/data-visualization-3-the-after-version.Rmd",
     "project_path" : "_posts/2019-03-19-data-visualization-3-the-after-version/data-visualization-3-the-after-version.Rmd",
     "properties" : {
         "cursorPosition" : "264,288",
-        "scrollLine" : "254"
+        "scrollLine" : "252"
     },
     "read_only" : false,
     "read_only_alternatives" : [
