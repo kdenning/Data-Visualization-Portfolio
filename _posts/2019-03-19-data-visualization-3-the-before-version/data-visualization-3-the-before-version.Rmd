@@ -85,6 +85,7 @@ oregon_join3 <- left_join(oregon_join2, oregon_plot_freq)
 #dropping region and subregion from new overall dataset
 oregon_join3 %<>% 
   select(-c(region, subregion))
+
 state <- ggplot2::map_data("state")
 
 #need to have a varaible with the full state names in lowercase to merge datasets

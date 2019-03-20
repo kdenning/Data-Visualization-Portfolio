@@ -1,0 +1,265 @@
+---
+title: "Data Visualization 3: The After Version"
+description: |
+  This plot updates the third data visualization by combining the two plots of Oregon into one and making it easier to read the text labels.
+author:
+  - name: Kathryn Denning
+    url: https://psychology.uoregon.edu/profile/kdenning/
+date: 03-19-2019
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+#install.packages("rio")
+#install.packages("here")
+#install.packages("tidyverse")
+#install.packages("magrittr")
+#install.packages("RColorBrewer")
+#install.packages("ggridges")
+#install.packages("XML")
+#install.packages("janitor")
+#install.packages("colorspace")
+#install.packages("ggrepel")
+#install.packages("cowplot")
+#install.packages("shadowtext")
+library(rio)
+library(here)
+library(tidyverse)
+library(magrittr)
+library(RColorBrewer)
+library(ggridges)
+library(XML)
+library(janitor)
+library(colorspace)
+#library(ggsci)
+library(ggrepel)
+library(cowplot)
+library(shadowtext)
+
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+
+#read in data on all UFO citings in Jan 2019
+x <- readHTMLTable("http://www.nuforc.org/webreports/ndxe201901.html")
+#Turn it into a dataset
+ufo_jan19 <- plyr::ldply(x, data.frame)
+#power was out, so couldn't google how to add a key when there isn't one - so just wrote it into a csv and added in excel
+write.csv(ufo_jan19,'ufo_jan19.csv')
+ufo_jan19 <- read_csv("ufo_jan19.csv")
+
+#cleaned dataset to be lowercase and to only include US states
+clean <- ufo_jan19 %>%
+  clean_names() %>% 
+  filter(state != "AB") %>% 
+  filter(state != "ON") %>% 
+  filter(!is.na(state))
+
+#Read in data of all ufo citings in Oregon ever
+y <- readHTMLTable("http://www.nuforc.org/webreports/ndxlOR.html")
+#Turn it into a dataset
+ufo_oregon <- plyr::ldply(y, data.frame)
+
+#cleaning the oregon dataset
+ufo_oregon %<>% clean_names() 
+
+#importing dataset with information about city, county, and population information
+oregon_city_county <- import("oregon_city_county.csv")
+
+#joining dataset of ufo data with oregon city and county data
+oregon_join1 <- left_join(oregon_city_county, ufo_oregon)
+
+#cleaning new dataset
+oregon_join1 %<>% 
+  na.omit() %>% 
+  select(-id)
+
+#getting informtion on the lat and long of each county for plotting
+county <- ggplot2::map_data("county")
+
+#changing the variables in county to have a key that will match ufo_oregon dataset
+oregon_county <- county %>% 
+  filter(region == "oregon") %>% 
+  mutate(county = subregion)
+
+oregon_join1$county <- tolower(oregon_join1$county)
+
+#merging the county lat long dataset with the oregon_join1 dataset
+oregon_join2 <- left_join(oregon_join1, oregon_county)
+
+#getting the frequency of observations per county
+oregon_plot_freq <- oregon_join2 %>% 
+  group_by(county) %>% 
+  count()
+
+#joining the frequency back with the main dataset
+oregon_join3 <- left_join(oregon_join2, oregon_plot_freq)
+
+#dropping region and subregion from new overall dataset
+oregon_join3 %<>% 
+  select(-c(region, subregion))
+state <- ggplot2::map_data("state")
+
+#need to have a varaible with the full state names in lowercase to merge datasets
+state_fullname <- datasets::state.name #calling dataset with state names
+state_fullname <- sapply(state.name, tolower) #making them lowercase
+
+state_abbrv <- datasets::state.abb #calling dataset with abbreviations to use as key when merging dataset to get full names in main dataset so that it can be combined with dataset used to make map of US
+
+state_key <- data.frame(
+  state_full = state_fullname,
+  state_abrv = state_abbrv
+) #making dataset with the two character strings state_fullname and state_abbrv
+
+state_key %<>% clean_names
+
+clean %<>% 
+  mutate(state_abrv = state)
+
+#creating the dataset for the state base for the plot
+
+state_fixed <- state %>% 
+  mutate(state_full = region) %>% 
+  select(-region) %>% 
+  clean_names
+
+#making the base of oregon for the plot
+oregon_base <- state_fixed %>% 
+  filter(state_full == "oregon")
+
+oregon_base <- ggplot(data = oregon_base, 
+                     mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(color = "white", fill = "white")
+
+#code that removes axes from plot of US
+ditch_the_axes <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank()
+  )
+
+#code that fills oregon with frequency data
+oregon_filled <- oregon_base + 
+  geom_polygon(data = oregon_join3, aes(fill = n), color = "white") +
+      geom_polygon(color = "white", fill = NA) +
+      scale_fill_continuous_sequential("viridis", name = "Frequency") +
+  ditch_the_axes
+
+#adding title
+plot_title_freq <- oregon_filled + 
+  labs(title = "Frequency of UFO citings per county in Oregon") +
+  theme(plot.title = element_text(size = 18))
+
+#figuring out top 5
+oregon_join3 %>% 
+  select(county, n, group) %>% 
+  arrange(-n) %>% 
+  unique() %>% 
+  filter(n > 6693)
+
+#creating dataset with names of counties and locations
+freq_top5names <- c("Multnomah", "Lane", "Washington", "Marion", "Clackamas")
+freq_y <- c(45.5, 44, 45.6, 44.8, 45.1)
+freq_x <- c(-121.9, -122.5, -123.4, -122.1, -122)
+
+freq_top5 <- data.frame(
+  names = freq_top5names,
+  y = freq_y,
+  x = freq_x
+)
+
+#making a dataset for city, but couldnt' get the code later to run (it timed out...)
+city <- c("Eugene", "Portland")
+lat <- c(44.0521, 45.5122)
+long <- c(-123.0868, -122.6587)
+
+cities <- data.frame(
+  city = city,
+  long = long,
+  lat = lat
+)
+
+#Adding labels for the top 5 counties and big cities
+or_plot1 <- plot_title_freq + 
+  geom_shadowtext(data = freq_top5, aes(label = names, x = x, y = y), inherit.aes = FALSE, size = 4, bg.colour='violetred4') 
+
+or_plot1_cities <- or_plot1 + geom_point(aes(x = long, y = lat), data = cities, inherit.aes = FALSE, color = "red") + geom_text_repel(aes(x = long, y = lat, label = city), data = cities, inherit.aes = FALSE, color = "red", size = 4, fontface = "bold")
+
+or_plot1_cities 
+```
+
+
+```{r chloropleth of proportion in oregon ever, include = FALSE}
+#finding the proportion of observations per county
+oregon_plot_proportion <- oregon_join3 %>% 
+  group_by(county) %>% 
+  mutate(freq_bypop = (n/county_pop)) %>% 
+  summarize(freq_bypop_percounty = mean(freq_bypop))
+
+#adding proportion back into overall dataset
+oregon_join4 <- left_join(oregon_join3, oregon_plot_proportion)
+
+#filling in base with county proportion information
+oregon_filled_pro <- oregon_base + 
+  geom_polygon(data = oregon_join4, aes(fill = freq_bypop_percounty), color = "white") +
+      geom_polygon(color = "white", fill = NA) +
+      scale_fill_continuous_sequential("viridis", name = "Proportion") +
+  ditch_the_axes
+
+#adding title
+plot_title <- oregon_filled_pro + 
+  labs(title = "Proportion of UFO citings per county in Oregon") +
+  theme(plot.title = element_text(size = 18))
+
+#Figuring out top 5 counties
+county_names <- oregon_join4 %>% 
+  select(county, freq_bypop_percounty, group) %>% 
+  arrange(-freq_bypop_percounty) %>% 
+  unique() %>% 
+  filter(freq_bypop_percounty > 0.06523439)
+
+#creating dataset with names of counties and locations
+pro_top5names <- c("Baker", "Lane", "Curry", "Tillamook", "Lincoln")
+pro_y <- c(44.7, 44, 45.5, 46, 44.7)
+pro_x <- c(-117.7, -122.7, -124, -124.2, -124.2)
+
+prop_top5 <- data.frame(
+  names = pro_top5names,
+  y = pro_y,
+  x = pro_x
+)
+
+#Figure out total # of citings in OR ever
+oregon_join4 %>% 
+  count()
+
+#Adding labels for the top 5 counties and Eugene/Portland
+or_plot2 <- plot_title  + 
+  geom_shadowtext(data = prop_top5, aes(label = names, x = x, y = y), inherit.aes = FALSE, size = 4, bg.colour='violetred4')
+
+or_plot2_cities <- or_plot2 + geom_point(aes(x = long, y = lat), data = cities, inherit.aes = FALSE, color = "red") + geom_text_repel(aes(x = long, y = lat, label = city), data = cities, inherit.aes = FALSE, color = "red", size = 4, fontface = "bold")
+
+#combining plots 1A and 1B into one plot side by side
+combined2 <- plot_grid(or_plot1_cities, or_plot2_cities, labels = c("", ""), align = "hv", nrow = 2, hjust = -.05)
+
+#Adding a caption
+OR_final_withcounties <- ggdraw(add_sub(combined2, "Top five counties labeled. 121,456 documented citings statewide since 1905.\nData from National UFO Reporting Center and US Census Bureau.", x = .1, hjust = .1, vjust = 0, fontfamily = "",
+  fontface = "plain", colour = "black", size = 10, angle = 0,
+  lineheight = 0.9))
+```
+
+```{r fig.width=10, fig.height=10, echo = FALSE}
+OR_final_withcounties
+```
+
+### What you're seeing:
+This plot aids in the comparison of the two plots, demonstrating more clearly that the counties with the highest frequency of observations aren't generally the highest after taking into account county population size. However, Lane County is still in the top 5 counties after taking into account population size. The other counties with the highest proportion of observations are either along the coast or in the more remote and rural county of Baker County, which actually has the highest proportion of observations.
+
+### Data visualization changes:
+The plots were combined using the package "cowplot" and then the text labels for the top 5 counties were given an outline using the package "Shadowtext." The cities of Eugene and Portland were also added in order to orient people to the locations of the two most populous cities in Oregon.

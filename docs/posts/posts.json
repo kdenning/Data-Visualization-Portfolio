@@ -87,6 +87,21 @@
     "date": "2019-03-19",
     "categories": [],
     "preview": "posts/2019-03-19-data-visualization-3-the-before-version/data-visualization-3-the-before-version_files/figure-html5/unnamed-chunk-1-1.png",
-    "last_modified": "2019-03-19T20:10:45-07:00"
+    "last_modified": "2019-03-19T20:24:21-07:00"
+  },
+  {
+    "path": "posts/2019-03-19-data-visualization-3-the-after-version/",
+    "title": "Data Visualization 3: The After Version",
+    "description": "This plot updates the third data visualization by combining the two plots of Oregon into one and making it easier to read the text labels.",
+    "author": [
+      {
+        "name": "Kathryn Denning",
+        "url": "https://psychology.uoregon.edu/profile/kdenning/"
+      }
+    ],
+    "date": "2019-03-19",
+    "categories": [],
+    "preview": "posts/2019-03-19-data-visualization-3-the-after-version/data-visualization-3-the-after-version_files/figure-html5/unnamed-chunk-1-1.png",
+    "last_modified": "2019-03-19T21:10:14-07:00"
   }
 ]
